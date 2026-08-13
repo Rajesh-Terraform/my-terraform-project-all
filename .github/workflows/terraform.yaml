@@ -1,0 +1,310 @@
+name: Terraform Hub-Spoke Network
+
+on:
+  push:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+
+# ============================================================
+# PHASE 1
+# HUB VPC
+# ============================================================
+
+jobs:
+
+  phase1-hub-vpc:
+
+    name: "Phase 1 - Hub VPC"
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      AWS_REGION: ap-south-1
+      TF_VAR_spoke_role_arn: ${{ secrets.SPOKE_ROLE_ARN }}
+
+    steps:
+
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # --------------------------------------------------------
+      # AWS Authentication
+      # Hub Account
+      # --------------------------------------------------------
+
+      - name: Configure AWS credentials - Hub
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.HUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+      # --------------------------------------------------------
+      # Verify Hub Account
+      # --------------------------------------------------------
+
+      - name: Verify AWS Account
+        run: |
+          aws sts get-caller-identity
+
+
+      # --------------------------------------------------------
+      # Terraform Init
+      # --------------------------------------------------------
+
+      - name: Terraform Init
+        run: terraform init
+
+
+      # --------------------------------------------------------
+      # Terraform Format
+      # --------------------------------------------------------
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+
+      # --------------------------------------------------------
+      # Terraform Validate
+      # --------------------------------------------------------
+
+      - name: Terraform Validate
+        run: terraform validate
+
+
+      # --------------------------------------------------------
+      # PHASE 1 PLAN
+      # --------------------------------------------------------
+
+      - name: Phase 1 - Plan Hub VPC
+        run: |
+          terraform plan \
+            -target=module.hub_vpc \
+            -out=phase1.tfplan
+
+
+      # --------------------------------------------------------
+      # PHASE 1 APPLY
+      # --------------------------------------------------------
+
+      - name: Phase 1 - Apply Hub VPC
+        run: |
+          terraform apply \
+            -auto-approve \
+            phase1.tfplan
+
+
+# ============================================================
+# PHASE 2
+# SPOKE VPC
+# ============================================================
+
+  phase2-spoke-vpc:
+
+    name: "Phase 2 - Spoke VPC"
+
+    needs:
+      - phase1-hub-vpc
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      AWS_REGION: ap-south-1
+      TF_VAR_spoke_role_arn: ${{ secrets.SPOKE_ROLE_ARN }}
+
+    steps:
+
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # --------------------------------------------------------
+      # AWS Authentication
+      # Hub Account
+      # --------------------------------------------------------
+
+      - name: Configure AWS credentials - Hub
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.HUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+      # --------------------------------------------------------
+      # Verify Hub Account
+      # --------------------------------------------------------
+
+      - name: Verify AWS Account
+        run: |
+          aws sts get-caller-identity
+
+
+      # --------------------------------------------------------
+      # Terraform Init
+      # --------------------------------------------------------
+
+      - name: Terraform Init
+        run: terraform init
+
+
+      # --------------------------------------------------------
+      # Terraform Validate
+      # --------------------------------------------------------
+
+      - name: Terraform Validate
+        run: terraform validate
+
+
+      # --------------------------------------------------------
+      # PHASE 2 PLAN
+      # --------------------------------------------------------
+
+      - name: Phase 2 - Plan Spoke VPC
+        run: |
+          terraform plan \
+            -target=module.spoke_vpc \
+            -out=phase2.tfplan
+
+
+      # --------------------------------------------------------
+      # PHASE 2 APPLY
+      # --------------------------------------------------------
+
+      - name: Phase 2 - Apply Spoke VPC
+        run: |
+          terraform apply \
+            -auto-approve \
+            phase2.tfplan
+
+
+# ============================================================
+# PHASE 3
+# TRANSIT GATEWAY
+# ============================================================
+
+  phase3-transit-gateway:
+
+    name: "Phase 3 - Transit Gateway"
+
+    needs:
+      - phase2-spoke-vpc
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      AWS_REGION: ap-south-1
+      TF_VAR_spoke_role_arn: ${{ secrets.SPOKE_ROLE_ARN }}
+
+    steps:
+
+      # --------------------------------------------------------
+      # Checkout
+      # --------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # --------------------------------------------------------
+      # AWS Authentication
+      # Hub Account
+      # --------------------------------------------------------
+
+      - name: Configure AWS credentials - Hub
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.HUB_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+
+      # --------------------------------------------------------
+      # Verify Hub Account
+      # --------------------------------------------------------
+
+      - name: Verify AWS Account
+        run: |
+          aws sts get-caller-identity
+
+
+      # --------------------------------------------------------
+      # Terraform Init
+      # --------------------------------------------------------
+
+      - name: Terraform Init
+        run: terraform init
+
+
+      # --------------------------------------------------------
+      # Terraform Validate
+      # --------------------------------------------------------
+
+      - name: Terraform Validate
+        run: terraform validate
+
+
+      # --------------------------------------------------------
+      # PHASE 3 PLAN
+      # --------------------------------------------------------
+
+      - name: Phase 3 - Plan Transit Gateway
+        run: |
+          terraform plan \
+            -target=module.transit_gateway \
+            -out=phase3.tfplan
+
+
+      # --------------------------------------------------------
+      # PHASE 3 APPLY
+      # --------------------------------------------------------
+
+      - name: Phase 3 - Apply Transit Gateway
+        run: |
+          terraform apply \
+            -auto-approve \
+            phase3.tfplan
+
+
+      # --------------------------------------------------------
+      # Final State
+      # --------------------------------------------------------
+
+      - name: Terraform State
+        run: |
+          terraform state list
+
+
+      # --------------------------------------------------------
+      # Final Outputs
+      # --------------------------------------------------------
+
+      - name: Terraform Outputs
+        run: |
+          terraform output
