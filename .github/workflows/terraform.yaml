@@ -369,9 +369,7 @@ jobs:
       # 9. TERRAFORM STATE
       # --------------------------------------------------------
 
-      - name: Terraform State
-        run: terraform state list
-
+    
 
       # --------------------------------------------------------
       # 10. TERRAFORM OUTPUTS
