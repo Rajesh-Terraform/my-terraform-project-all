@@ -197,6 +197,32 @@ jobs:
       - name: Verify Spoke AWS Account
         run: |
           aws sts get-caller-identity
+      
+          
+
+      - name: Check AWS Identity
+        run: |
+         aws sts get-caller-identity
+
+
+      - name: Test S3 bucket
+        run: aws s3 ls s3://harish-gaddam-bucket123 
+
+       
+      - name: Test Terraform state
+        run: aws s3api head-object \
+         --bucket harish-gaddam-bucket123  \
+         --key networking/hub-spoke/terraform.tfstate    
+
+
+
+
+
+
+
+
+      - name: Terraform Init
+        run: terraform init     
 
 
       # --------------------------------------------------------
@@ -206,6 +232,10 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+
+
+
+     
 
       # --------------------------------------------------------
       # 6. TERRAFORM VALIDATE
