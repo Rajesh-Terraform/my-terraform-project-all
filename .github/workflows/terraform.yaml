@@ -205,11 +205,7 @@ jobs:
 
       - name: Check Terraform state
         run: |
-         aws s3 \
-         --bucket dhoni-demo-terraform-bucket-123456 \
-         --key networking/hub-spoke/terraform.tfstate
-
-
+         aws s3 ls s3://dhoni-demo-terraform-bucket-123456
         
     
 
