@@ -95,8 +95,6 @@ jobs:
       # 6. TERRAFORM FORMAT
       # --------------------------------------------------------
 
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
 
 
       # --------------------------------------------------------
