@@ -206,6 +206,9 @@ jobs:
       - name: Check Terraform state
         run: |
          aws s3 ls s3://dhoni-demo-terraform-bucket-123456
+
+         aws sts get-caller-identity
+         aws s3 ls s3://dhoni-demo-terraform-bucket-123456
         
     
 
