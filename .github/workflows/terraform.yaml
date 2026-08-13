@@ -213,16 +213,10 @@ jobs:
        
       
          
-         aws s3api head-object --bucket harish-gaddam-bucket123 --key networking/hub-spoke/terraform.tfstate
-         s3://harish-gaddam-bucket123/spoke-vpc/
-
-
-         aws s3api head-object \
-         --bucket harish-gaddam-bucket123 \
-         --key spoke-vpc/terraform.tfstate
-          
          
 
+
+        
     
 
 
