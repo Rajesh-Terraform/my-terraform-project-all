@@ -31,7 +31,7 @@ jobs:
 
     env:
       AWS_REGION: ap-south-1
-      TF_VAR_spoke_role_arn: ${{ secrets.SPOKE_ROLE_ARN }}
+      TF_VAR_spoke_role_arn: arn:aws:iam::647132523867:role/github-actions-terraform-role-v1
 
     steps:
 
@@ -51,8 +51,8 @@ jobs:
       - name: Configure AWS credentials - Hub
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.HUB_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::647132523867:role/github-actions-terraform-role-v1
+          aws-region: ap-south-1
 
 
       # --------------------------------------------------------
@@ -130,7 +130,7 @@ jobs:
 
     env:
       AWS_REGION: ap-south-1
-      TF_VAR_spoke_role_arn: ${{ secrets.SPOKE_ROLE_ARN }}
+      TF_VAR_spoke_role_arn: arn:aws:iam::434097521299:role/testingdummy
 
     steps:
 
@@ -150,8 +150,8 @@ jobs:
       - name: Configure AWS credentials - Hub
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.HUB_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::434097521299:role/testingdummy
+          aws-region: ap-south-1
 
 
       # --------------------------------------------------------
@@ -221,7 +221,7 @@ jobs:
 
     env:
       AWS_REGION: ap-south-1
-      TF_VAR_spoke_role_arn: ${{ secrets.SPOKE_ROLE_ARN }}
+      TF_VAR_spoke_role_arn : arn:aws:iam::434097521299:role/testingdummy
 
     steps:
 
@@ -241,8 +241,8 @@ jobs:
       - name: Configure AWS credentials - Hub
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.HUB_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::647132523867:role/github-actions-terraform-role-v1
+          aws-region: ap-south-1
 
 
       # --------------------------------------------------------
