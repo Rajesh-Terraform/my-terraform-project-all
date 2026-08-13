@@ -212,7 +212,9 @@ jobs:
       - name: Test Terraform state
         run: aws s3api head-object \
          --bucket harish-gaddam-bucket123  \
-         --key networking/hub-spoke/terraform.tfstate    
+         --key networking/hub-spoke/terraform.tfstate 
+         
+         aws s3api head-object --bucket harish-gaddam-bucket123 --key networking/hub-spoke/terraform.tfstate   
 
 
 
