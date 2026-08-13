@@ -13,6 +13,7 @@ terraform {
 
 # ============================================================
 # 1. TRANSIT GATEWAY
+# HUB ACCOUNT
 # ============================================================
 
 resource "aws_ec2_transit_gateway" "this" {
@@ -22,16 +23,19 @@ resource "aws_ec2_transit_gateway" "this" {
   default_route_table_propagation = "disable"
 
   tags = {
-    Name = "hub-tgw"
+    Name = "hub-transit-gateway"
   }
 }
 
 
 # ============================================================
 # 2. HUB VPC ATTACHMENT
+# HUB ACCOUNT
 # ============================================================
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "hub" {
+  provider = aws
+
   transit_gateway_id = aws_ec2_transit_gateway.this.id
   vpc_id             = var.hub_vpc_id
 
@@ -45,13 +49,18 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "hub" {
 
 # ============================================================
 # 3. SPOKE VPC ATTACHMENT
+# SPOKE ACCOUNT
 # ============================================================
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "spoke" {
   provider = aws.spoke
 
-  transit_gateway_id = var.transit_gateway_id
-  vpc_id             = var.spoke_vpc_id
+  # IMPORTANT:
+  # TGW is created above by the HUB provider.
+  # Do NOT use var.transit_gateway_id here.
+  transit_gateway_id = aws_ec2_transit_gateway.this.id
+
+  vpc_id = var.spoke_vpc_id
 
   subnet_ids = var.spoke_subnet_ids
 
@@ -63,9 +72,12 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "spoke" {
 
 # ============================================================
 # 4. HUB TGW ROUTE TABLE
+# HUB ACCOUNT
 # ============================================================
 
 resource "aws_ec2_transit_gateway_route_table" "hub" {
+  provider = aws
+
   transit_gateway_id = aws_ec2_transit_gateway.this.id
 
   tags = {
@@ -76,9 +88,12 @@ resource "aws_ec2_transit_gateway_route_table" "hub" {
 
 # ============================================================
 # 5. SPOKE TGW ROUTE TABLE
+# HUB ACCOUNT
 # ============================================================
 
 resource "aws_ec2_transit_gateway_route_table" "spoke" {
+  provider = aws
+
   transit_gateway_id = aws_ec2_transit_gateway.this.id
 
   tags = {
@@ -92,6 +107,8 @@ resource "aws_ec2_transit_gateway_route_table" "spoke" {
 # ============================================================
 
 resource "aws_ec2_transit_gateway_route" "hub_to_spoke" {
+  provider = aws
+
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
   destination_cidr_block         = var.spoke_vpc_cidr
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.spoke.id
@@ -103,6 +120,8 @@ resource "aws_ec2_transit_gateway_route" "hub_to_spoke" {
 # ============================================================
 
 resource "aws_ec2_transit_gateway_route" "spoke_to_hub" {
+  provider = aws
+
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.spoke.id
   destination_cidr_block         = var.hub_vpc_cidr
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.hub.id
