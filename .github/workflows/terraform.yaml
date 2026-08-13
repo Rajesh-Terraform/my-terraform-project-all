@@ -203,11 +203,11 @@ jobs:
          aws sts get-caller-identity
 
 
-      - name: Check AWS identity
-        run: aws sts get-caller-identity
+      - name: Check AWS and S3
+        run: |
+         aws sts get-caller-identity
+         aws s3 ls s3://harish-gaddam-bucket123   
 
-         aws s3 ls s3://harish-gaddam-bucket123  
-    
 
 
 
