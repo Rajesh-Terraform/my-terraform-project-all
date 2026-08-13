@@ -93,4 +93,4 @@ module "tgw_vpc_routes" {
   depends_on = [
     module.transit_gateway
   ]
-}  
+}    

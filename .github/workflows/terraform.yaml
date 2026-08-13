@@ -338,4 +338,4 @@ jobs:
       # --------------------------------------------------------
 
       - name: Terraform Outputs
-        run: terraform output  
+        run: terraform output       
