@@ -7,4 +7,5 @@ variable "aws_region" {
 variable "spoke_role_arn" {
   description = "IAM role ARN in spoke account"
   type        = string
-}  
+  default     = null
+}

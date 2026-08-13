@@ -115,6 +115,16 @@ jobs:
       - name: Phase 1 - Plan Hub VPC
         run: terraform plan -target=module.hub_vpc -out=phase1.tfplan
 
+      
+      - name: Phase 1 - Plan Hub VPC
+        run: terraform plan -input=false -target=module.hub_vpc -out=phase1.tfplan 
+        
+        
+      
+
+
+          
+
 
       # --------------------------------------------------------
       # 9. PHASE 1 APPLY
