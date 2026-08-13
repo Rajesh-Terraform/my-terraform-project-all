@@ -204,7 +204,7 @@ jobs:
 
 
       - name: Test S3 bucket
-        run: aws s3 ls s3://harish-gaddam-bucket123 
+        run: dhoni-demo-terraform-bucket-123456
 
 
       - name: Check S3 files
