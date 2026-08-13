@@ -216,17 +216,19 @@ jobs:
        
       
          
-         aws s3api head-object --bucket harish-gaddam-bucket123 --key networking/hub-spoke/terraform.tfstate   
+         aws s3api head-object --bucket harish-gaddam-bucket123 --key networking/hub-spoke/terraform.tfstate
+         
+         
 
-
-
-
-
+    
 
 
 
       - name: Terraform Init
-        run: terraform init     
+        run: terraform init -reconfigure
+
+
+
 
 
       # --------------------------------------------------------
