@@ -207,10 +207,10 @@ jobs:
         run: aws sts get-caller-identity
 
       - name: Check S3 bucket
-        run: aws s3api head-bucket --bucket dhoni-demo-terraform-bucket-123456
+        run: aws s3 harish-gaddam-bucket123 
 
       - name: List S3 bucket
-        run: aws s3 ls s3://dhoni-demo-terraform-bucket-123456
+        run: aws s3 ls harish-gaddam-bucket123 
     
 
 
