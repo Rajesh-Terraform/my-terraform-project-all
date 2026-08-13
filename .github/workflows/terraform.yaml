@@ -206,15 +206,7 @@ jobs:
       - name: Check AWS identity
         run: aws sts get-caller-identity
 
-      - name: Check S3 bucket
-        run: aws s3 harish-gaddam-bucket123 
-
-      - name: List S3 bucket
-        run: aws s3 ls harish-gaddam-bucket123 
-    
-
-
-
+         aws s3 ls s3://harish-gaddam-bucket123
     
 
 
