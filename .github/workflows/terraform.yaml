@@ -211,8 +211,7 @@ jobs:
 
       - name: Check S3 files
         run: |
-         aws s3 ls s3://harish-gaddam-bucket123 --recursive   
-
+        
        
       
          
@@ -224,10 +223,7 @@ jobs:
 
 
 
-      - name: Terraform Init
-        run: terraform init -reconfigure
-
-
+    
 
 
 
