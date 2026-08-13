@@ -203,15 +203,14 @@ jobs:
          aws sts get-caller-identity
 
 
-      - name: Check Terraform state
-        run: |
-         aws s3 ls s3://dhoni-demo-terraform-bucket-123456
+      - name: Check AWS identity
+        run: aws sts get-caller-identity
 
-         aws sts get-caller-identity
-         aws s3 ls s3://dhoni-demo-terraform-bucket-123456
-         arn:aws:s3:::dhoni-demo-terraform-bucket-123456
-         arn:aws:s3:::dhoni-demo-terraform-bucket-123456/*
-        
+      - name: Check S3 bucket
+        run: aws s3api head-bucket --bucket dhoni-demo-terraform-bucket-123456
+
+      - name: List S3 bucket
+        run: aws s3 ls s3://dhoni-demo-terraform-bucket-123456
     
 
 
