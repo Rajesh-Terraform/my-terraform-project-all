@@ -203,14 +203,11 @@ jobs:
          aws sts get-caller-identity
 
 
-      - name: Test S3 bucket
-        run: dhoni-demo-terraform-bucket-123456
-
-
-      - name: Check S3 files
+      - name: Check Terraform state
         run: |
-        
-       
+          aws s3api head-object \
+          --bucket dhoni-demo-terraform-bucket-123456 \
+          --key networking/hub-spoke/terraform.tfstate
       
          
          
