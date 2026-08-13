@@ -4,7 +4,7 @@ terraform {
     key    = "networking/hub-spoke/terraform.tfstate"
     region = "ap-south-1"
   }
-}
+} 
 
 
 
