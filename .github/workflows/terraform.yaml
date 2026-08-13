@@ -209,6 +209,8 @@ jobs:
 
          aws sts get-caller-identity
          aws s3 ls s3://dhoni-demo-terraform-bucket-123456
+         arn:aws:s3:::dhoni-demo-terraform-bucket-123456
+         arn:aws:s3:::dhoni-demo-terraform-bucket-123456/*
         
     
 
