@@ -118,7 +118,18 @@ jobs:
         run: terraform plan -input=false -target=module.hub_vpc -out=phase1.tfplan 
         
         
-      
+      - name: Terraform Plan Destroy - Hub VPC    
+        run: |
+          terraform plan \
+            -destroy \
+            -target=module.hub_vpc \
+            -out=phase1-destroy.tfplan
+
+      - name: Terraform Apply Destroy - Hub VPC
+        run: terraform apply -auto-approve phase1-destroy.tfplan 
+
+
+
 
 
           
@@ -128,9 +139,6 @@ jobs:
       # 9. PHASE 1 APPLY
       # HUB VPC
       # --------------------------------------------------------
-
-      - name: Phase 1 - Apply Hub VPC
-        run: terraform apply -auto-approve phase1.tfplan
 
 
         
