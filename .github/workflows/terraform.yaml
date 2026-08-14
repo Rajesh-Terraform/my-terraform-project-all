@@ -11,13 +11,15 @@ on:
 
   workflow_dispatch:
 
-    # ============================================================
-    # GITHUB ACTIONS PERMISSIONS
-    # ============================================================
+
+# ============================================================
+# GITHUB ACTIONS PERMISSIONS
+# ============================================================
 
 permissions:
   contents: read
   id-token: write
+
 
 # ============================================================
 # PHASE 1
@@ -49,6 +51,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
       # --------------------------------------------------------
       # 2. SETUP TERRAFORM
       # --------------------------------------------------------
@@ -57,6 +60,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.8
+
 
       # --------------------------------------------------------
       # 3. AWS OIDC AUTHENTICATION
@@ -69,6 +73,7 @@ jobs:
           role-to-assume: arn:aws:iam::647132523867:role/github-actions-terraform-role-v1
           aws-region: ap-south-1
 
+
       # --------------------------------------------------------
       # 4. VERIFY AWS ACCOUNT
       # --------------------------------------------------------
@@ -77,12 +82,14 @@ jobs:
         run: |
           aws sts get-caller-identity
 
+
       # --------------------------------------------------------
       # 5. TERRAFORM INIT
       # --------------------------------------------------------
 
       - name: Terraform Init
         run: terraform init
+
 
       # --------------------------------------------------------
       # 6. TERRAFORM FORMAT
@@ -97,143 +104,173 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+
       # --------------------------------------------------------
       # 8. PHASE 1 PLAN
       # HUB VPC
       # --------------------------------------------------------
 
-
       - name: Phase 1 - Plan Hub VPC
         run: terraform plan -target=module.hub_vpc -out=phase1.tfplan
 
+      
       - name: Phase 1 - Plan Hub VPC
-        run: terraform plan -input=false -target=module.hub_vpc -out=phase1.tfplan
+        run: terraform plan -input=false -target=module.hub_vpc -out=phase1.tfplan 
+        
+        
+      
+
+
+          
+
+
+      # --------------------------------------------------------
+      # 9. PHASE 1 APPLY
+      # HUB VPC
+      # --------------------------------------------------------
 
       - name: Phase 1 - Apply Hub VPC
-        run: terraform apply -auto-approve phase1.tfplan  
+        run: terraform apply -auto-approve phase1.tfplan
+
+
         
-   # ============================================================
+
+
+# ============================================================
 # PHASE 2
 # SPOKE VPC
+# ACCOUNT: 434097521299
+# ============================================================
+
+  phase2-spoke-vpc:
+
+    name: "Phase 2 - Spoke VPC"
+
+    needs:
+      - phase1-hub-vpc
+
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    env:
+      AWS_REGION: ap-south-1
+      TF_VAR_spoke_role_arn: arn:aws:iam::434097521299:role/testingdummy
+
+    steps:
+
+      # --------------------------------------------------------
+      # 1. CHECKOUT
+      # --------------------------------------------------------
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+
+      # --------------------------------------------------------
+      # 2. SETUP TERRAFORM
+      # --------------------------------------------------------
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+
+
+      # --------------------------------------------------------
+      # 3. AWS OIDC AUTHENTICATION
+      # SPOKE ACCOUNT
+      # --------------------------------------------------------
+
+      - name: Configure AWS credentials - Spoke
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::434097521299:role/testingdummy
+          aws-region: ap-south-1
+
+
+      # --------------------------------------------------------
+      # 4. VERIFY AWS ACCOUNT
+      # --------------------------------------------------------
+
+      - name: Verify Spoke AWS Account
+        run: |
+          aws sts get-caller-identity
+      
+          
+
+      - name: Check AWS Identity
+        run: |
+         aws sts get-caller-identity
+
+
+      - name: Check AWS and S3
+        run: |
+         aws sts get-caller-identity
+         aws s3 ls s3://harish-gaddam-bucket123   
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+         terraform_version: 1.9.8
+
+
+      - name: Configure AWS credentials - Spoke
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+         role-to-assume: arn:aws:iam::434097521299:role/testingdummy
+         aws-region: ap-south-1
+    
+
+
+
+      # --------------------------------------------------------
+      # 5. TERRAFORM INIT
+      # --------------------------------------------------------
+
+      - name: Terraform Init
+        run: terraform init
+
+
+
+
+     
+
+      # --------------------------------------------------------
+      # 6. TERRAFORM VALIDATE
+      # --------------------------------------------------------
+
+      - name: Terraform Validate
+        run: terraform validate
+
+
+      # --------------------------------------------------------
+      # 7. PHASE 2 PLAN
+      # SPOKE VPC
+      # --------------------------------------------------------
+
+      - name: Phase 2 - Plan Spoke VPC
+        run: terraform plan -target=module.spoke_vpc -out=phase2.tfplan
+
+
+      # --------------------------------------------------------
+      # 8. PHASE 2 APPLY
+      # SPOKE VPC
+      # --------------------------------------------------------
+
+      - name: Phase 2 - Apply Spoke VPC
+        run: terraform apply -auto-approve phase2.tfplan
+
+
+# ============================================================
+# PHASE 3
+# TRANSIT GATEWAY
+# HUB + SPOKE
+# HUB ACCOUNT: 647132523867
 # SPOKE ACCOUNT: 434097521299
 # ============================================================
-phase2-spoke-vpc:
-
-  name: "Phase 2 - Spoke VPC"
-
-  needs:
-    - phase1-hub-vpc
-
-  runs-on: ubuntu-latest
-
-  permissions:
-    contents: read
-    id-token: write
-
-  defaults:
-    run:
-      working-directory: terraform
-
-  env:
-    AWS_REGION: ap-south-1
-    TF_VAR_spoke_role_arn: arn:aws:iam::434097521299:role/testingdummy
-
-  steps:
-
-    # ========================================================
-    # 1. CHECKOUT
-    # ========================================================
-
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-
-    # ========================================================
-    # 2. SETUP TERRAFORM
-    # ========================================================
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.9.8
-
-
-    # ========================================================
-    # 3. AWS OIDC
-    # SPOKE ACCOUNT
-    # ========================================================
-
-    - name: Configure AWS credentials - Spoke
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::434097521299:role/testingdummy
-        aws-region: ap-south-1
-
-
-    # ========================================================
-    # 4. VERIFY SPOKE ACCOUNT
-    # ========================================================
-
-    - name: Verify Spoke AWS Account
-      run: |
-        echo "AWS Account:"
-        aws sts get-caller-identity
-
-
-    # ========================================================
-    # 5. CHECK TERRAFORM BACKEND BUCKET
-    # ========================================================
-
-    - name: Check Terraform State Bucket
-      run: |
-        aws s3api head-bucket \
-          --bucket dhoni-demo-terraform-bucket-123456
-
-
-    # ========================================================
-    # 6. TERRAFORM INIT
-    # ========================================================
-
-    - name: Terraform Init
-      run: |
-        terraform init -reconfigure
-
-
-    # ========================================================
-    # 7. TERRAFORM VALIDATE
-    # ========================================================
-
-    - name: Terraform Validate
-      run: |
-        terraform validate
-
-
-    # ========================================================
-    # 8. PHASE 2 PLAN
-    # ========================================================
-
-    - name: Phase 2 - Plan Spoke VPC
-      run: |
-        terraform plan \
-          -target=module.spoke_vpc \
-          -out=phase2.tfplan
-
-
-    # ========================================================
-    # 9. PHASE 2 APPLY
-    # ========================================================
-
-    - name: Phase 2 - Apply Spoke VPC
-      run: |
-        terraform apply \
-          -auto-approve \
-          phase2.tfplan     
-
-
-
-
-
- 
 
   phase3-transit-gateway:
 
@@ -263,6 +300,7 @@ phase2-spoke-vpc:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+
       # --------------------------------------------------------
       # 2. SETUP TERRAFORM
       # --------------------------------------------------------
@@ -271,6 +309,7 @@ phase2-spoke-vpc:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.8
+
 
       # --------------------------------------------------------
       # 3. AWS OIDC AUTHENTICATION
@@ -283,6 +322,7 @@ phase2-spoke-vpc:
           role-to-assume: arn:aws:iam::647132523867:role/github-actions-terraform-role-v1
           aws-region: ap-south-1
 
+
       # --------------------------------------------------------
       # 4. VERIFY AWS ACCOUNT
       # --------------------------------------------------------
@@ -291,6 +331,7 @@ phase2-spoke-vpc:
         run: |
           aws sts get-caller-identity
 
+
       # --------------------------------------------------------
       # 5. TERRAFORM INIT
       # --------------------------------------------------------
@@ -298,12 +339,14 @@ phase2-spoke-vpc:
       - name: Terraform Init
         run: terraform init
 
+
       # --------------------------------------------------------
       # 6. TERRAFORM VALIDATE
       # --------------------------------------------------------
 
       - name: Terraform Validate
         run: terraform validate
+
 
       # --------------------------------------------------------
       # 7. PHASE 3 PLAN
@@ -313,6 +356,7 @@ phase2-spoke-vpc:
       - name: Phase 3 - Plan Transit Gateway
         run: terraform plan -target=module.transit_gateway -out=phase3.tfplan
 
+
       # --------------------------------------------------------
       # 8. PHASE 3 APPLY
       # TRANSIT GATEWAY
@@ -321,15 +365,16 @@ phase2-spoke-vpc:
       - name: Phase 3 - Apply Transit Gateway
         run: terraform apply -auto-approve phase3.tfplan
 
+
       # --------------------------------------------------------
       # 9. TERRAFORM STATE
       # --------------------------------------------------------
 
-
+    
 
       # --------------------------------------------------------
       # 10. TERRAFORM OUTPUTS
       # --------------------------------------------------------
 
       - name: Terraform Outputs
-        run: terraform output   
+        run: terraform output  
