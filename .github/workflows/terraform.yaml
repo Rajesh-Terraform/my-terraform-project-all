@@ -225,10 +225,7 @@ jobs:
          aws-region: ap-south-1
 
 
-          arn:aws:iam::647132523867:role/github-actions-terraform-role-v1
-          ap-south-1
-             
-            
+          
              
     
 
