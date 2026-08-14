@@ -110,14 +110,14 @@ jobs:
         run: terraform plan -input=false -target=module.hub_vpc -out=phase1.tfplan
 
       - name: Phase 1 - Apply Hub VPC
-        run: terraform apply -auto-approve phase1.tfplan
-  # ============================================================
-  # PHASE 2
-  # SPOKE VPC
-  # SPOKE ACCOUNT: 434097521299
-  # ============================================================  
-
- phase2-spoke-vpc:
+        run: terraform apply -auto-approve phase1.tfplan  
+        
+   # ============================================================
+# PHASE 2
+# SPOKE VPC
+# SPOKE ACCOUNT: 434097521299
+# ============================================================
+phase2-spoke-vpc:
 
   name: "Phase 2 - Spoke VPC"
 
@@ -147,6 +147,7 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+
     # ========================================================
     # 2. SETUP TERRAFORM
     # ========================================================
@@ -155,6 +156,7 @@ jobs:
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: 1.9.8
+
 
     # ========================================================
     # 3. AWS OIDC
@@ -167,6 +169,7 @@ jobs:
         role-to-assume: arn:aws:iam::434097521299:role/testingdummy
         aws-region: ap-south-1
 
+
     # ========================================================
     # 4. VERIFY SPOKE ACCOUNT
     # ========================================================
@@ -176,6 +179,7 @@ jobs:
         echo "AWS Account:"
         aws sts get-caller-identity
 
+
     # ========================================================
     # 5. CHECK TERRAFORM BACKEND BUCKET
     # ========================================================
@@ -183,7 +187,8 @@ jobs:
     - name: Check Terraform State Bucket
       run: |
         aws s3api head-bucket \
-          --bucket harish-gaddam-bucket123
+          --bucket dhoni-demo-terraform-bucket-123456
+
 
     # ========================================================
     # 6. TERRAFORM INIT
@@ -193,6 +198,7 @@ jobs:
       run: |
         terraform init -reconfigure
 
+
     # ========================================================
     # 7. TERRAFORM VALIDATE
     # ========================================================
@@ -200,6 +206,7 @@ jobs:
     - name: Terraform Validate
       run: |
         terraform validate
+
 
     # ========================================================
     # 8. PHASE 2 PLAN
@@ -211,6 +218,7 @@ jobs:
           -target=module.spoke_vpc \
           -out=phase2.tfplan
 
+
     # ========================================================
     # 9. PHASE 2 APPLY
     # ========================================================
@@ -220,6 +228,12 @@ jobs:
         terraform apply \
           -auto-approve \
           phase2.tfplan     
+
+
+
+
+
+ 
 
   phase3-transit-gateway:
 
@@ -318,4 +332,4 @@ jobs:
       # --------------------------------------------------------
 
       - name: Terraform Outputs
-        run: terraform output
+        run: terraform output   
